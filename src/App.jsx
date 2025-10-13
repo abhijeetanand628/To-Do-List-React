@@ -14,13 +14,20 @@ function App() {
 
     const add = () => {
       if(inputValue.trim() !== '') {
-        setTodos([...todos, {id: Date.now(), text: inputValue}]);
+        setTodos([...todos, {id: Date.now(), text: inputValue, isCompleted: false}]);
         setInputValue('');
       }
     }
 
+    // filter() method is used on ARRAY and used to delete , basically filter the item the we want ot remove and then return the rest of the ARRAY.
     const dlt = (id) => {
       setTodos(todos.filter(todo => todo.id !== id));
+    }
+
+    const toggle = (id) => {
+      setTodos(todos.map(todo => 
+        todo.id === id ? {...todo, isCompleted: !todo.isCompleted} : todo
+      ));
     }
 
     useEffect(() => {
@@ -51,9 +58,20 @@ function App() {
           {todos.map((todo) => (
             <li key={todo.id} 
             className='flex justify-between items-center bg-gray-100 px-3 py-1 rounded-xl'> 
-            <span className='text-gray-800'>{todo.text}</span>
+
+             <div className='flex items-center gap-1.5'>
+                <input
+                type='checkbox'
+                className='cursor-pointer w-4 h-4'
+                checked={todo.isCompleted}
+                onChange={() => toggle(todo.id)}
+                >
+                </input>
+                <span className={`break-all ${todo.isCompleted ? "line-through text-gray-400" : "text-gray-800"}`}>{todo.text}</span>
+              </div>
+
             <button 
-            className='text-red-500 hover:text-red-700 font-bold sm:text-2xl lg:text-2xl cursor-pointer'
+            className='text-red-500 hover:text-red-700 justify-end font-bold sm:text-2xl lg:text-2xl cursor-pointer'
             onClick={() => dlt(todo.id)}
             >
             X</button>
