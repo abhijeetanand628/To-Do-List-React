@@ -2,8 +2,15 @@ import { useEffect, useState } from 'react'
 import './App.css'
 
 function App() {
-  const [todos, setTodos] = useState([]);
   const [inputValue, setInputValue] = useState('');
+  const [todos, setTodos] = useState(() => {
+    const oldTodos = localStorage.getItem("todos");
+    if(oldTodos) {
+      return JSON.parse(oldTodos);
+    } else {
+      return [];
+    }
+  });
 
     const add = () => {
       if(inputValue.trim() !== '') {
@@ -16,13 +23,9 @@ function App() {
       setTodos(todos.filter(todo => todo.id !== id));
     }
 
-    // useEffect(() => {
-    //   const todos = JSON.parse(localStorage.getItem(todos));
-    // })
-
-    // useEffect(() => {
-    //   localStorage.setItem("todos", todos);
-    // })
+    useEffect(() => {
+      localStorage.setItem("todos", JSON.stringify(todos));
+    }, [todos])
 
   return (
     <>
@@ -47,10 +50,10 @@ function App() {
         <ul className='mt-6 space-y-3'>
           {todos.map((todo) => (
             <li key={todo.id} 
-            className='flex justify-between items-center bg-gray-100 p-1 rounded-xl'> 
+            className='flex justify-between items-center bg-gray-100 px-3 py-1 rounded-xl'> 
             <span className='text-gray-800'>{todo.text}</span>
             <button 
-            className='text-red-500 hover:text-red-700 font-bold sm:text-2xl lg:text-2xl'
+            className='text-red-500 hover:text-red-700 font-bold sm:text-2xl lg:text-2xl cursor-pointer'
             onClick={() => dlt(todo.id)}
             >
             X</button>
