@@ -3,6 +3,8 @@ import './App.css'
 
 function App() {
   const [inputValue, setInputValue] = useState('');
+  const [editableText, setEditableText] = useState('');
+  const [editingId, setEditingId] = useState(null);
   const [todos, setTodos] = useState(() => {
     const oldTodos = localStorage.getItem("todos");
     if(oldTodos) {
@@ -30,6 +32,38 @@ function App() {
       ));
     }
 
+    const edit = (todo) => {
+      setEditingId(todo.id)
+      setEditableText(todo.text)
+    }
+
+    const save = () => {
+      setTodos(todos.map(todo => 
+        todo.id === editingId ? {...todo, text:editableText} : todo
+      ))
+      // Turn off edit mode
+      setEditingId(null);
+      setEditableText('');
+    }
+
+    // ENTER using to ADD a new To-Do
+    const enterToDo = (e) => {
+      if(e.key === 'Enter')
+      {
+        e.preventDefault()
+        add()
+      }
+    }
+
+    // ENTER using for Save
+    const enterForSave = (e) => {
+      if(e.key === 'Enter')
+      {
+        e.preventDefault()
+        save()
+      }
+    }
+
     useEffect(() => {
       localStorage.setItem("todos", JSON.stringify(todos));
     }, [todos])
@@ -45,6 +79,7 @@ function App() {
           placeholder='Add your todo'
           onChange={(e) => setInputValue(e.target.value)}
           value={inputValue}
+          onKeyDown={enterToDo}
           className='flex-1 bg-gray-200 rounded-2xl p-3'
           />  
           <button 
@@ -59,7 +94,7 @@ function App() {
             <li key={todo.id} 
             className='flex justify-between items-center bg-gray-100 px-3 py-1 rounded-xl'> 
 
-             <div className='flex items-center gap-1.5'>
+             <div className='flex items-center gap-1.5 w-full '>
                 <input
                 type='checkbox'
                 className='cursor-pointer w-4 h-4'
@@ -67,14 +102,41 @@ function App() {
                 onChange={() => toggle(todo.id)}
                 >
                 </input>
-                <span className={`break-all ${todo.isCompleted ? "line-through text-gray-400" : "text-gray-800"}`}>{todo.text}</span>
+
+                {editingId === todo.id ? (
+                  <input
+                    type="text"
+                    value={editableText}
+                    onChange={(e) => setEditableText(e.target.value)}
+                    onKeyDown={enterForSave}
+                    className="flex-1 bg-white p-1 rounded"
+                  />
+                ) : (
+                  <span className={`break-all ${todo.isCompleted ? "line-through text-gray-400" : "text-gray-800"}`}>
+                    {todo.text}
+                  </span>
+                )}
               </div>
 
-            <button 
-            className='text-red-500 hover:text-red-700 justify-end font-bold sm:text-2xl lg:text-2xl cursor-pointer'
-            onClick={() => dlt(todo.id)}
-            >
-            X</button>
+            <div className='flex items-center gap-1.5'>
+                {editingId === todo.id ? (
+                  <button 
+                  onClick={save}
+                  className="text-green-500 font-bold p-1 cursor-pointer">
+                  Save</button>
+                ) : (
+                  <button
+                  onClick={() => edit(todo)}
+                  className='cursor-pointer text-xl'>✏️
+              </button>
+                )}
+
+              <button 
+              className='text-red-500 hover:text-red-700 justify-end font-bold sm:text-2xl lg:text-2xl cursor-pointer'
+              onClick={() => dlt(todo.id)}
+              >
+              X</button>
+            </div>
             </li>
           ))}
         </ul>
